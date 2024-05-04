@@ -3,10 +3,12 @@ import { Server } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 import { AppDataSource } from './config/db/data-source.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 const server = http.createServer(app);
 //               /rooms 경로로 웹소켓 연결     소켓서버 cors 허용해야함
