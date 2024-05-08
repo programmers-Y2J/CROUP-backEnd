@@ -3,11 +3,11 @@ import { DataSource } from 'typeorm';
 import { User } from './entity/User.js';
 
 export const AppDataSource = new DataSource({
-  type: 'mysql',
+  type: 'mongodb',
   host: 'localhost',
-  port: 5432, //포트 설정 해야함
-  username: 'your_username',
-  password: 'your_password',
+  port: 5432, //설정 필요
+  username: 'your_username', //설정 필요
+  password: 'your_password', //설정 필요
   database: 'your_database_name',
   synchronize: true,
   logging: false,
