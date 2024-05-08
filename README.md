@@ -52,3 +52,4 @@ npm run start
 ## 참고할 문서
 
 - typeorm 공식문서 https://typeorm.io/
+- typeorm 으로 mongodb 사용법 https://orkhan.gitbook.io/typeorm/docs/mongodb
