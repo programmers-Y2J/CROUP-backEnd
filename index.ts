@@ -1,18 +1,17 @@
 import express from 'express';
-import { Server } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
 import { AppDataSource } from './config/db/data-source.js';
 import cookieParser from 'cookie-parser';
+import SocketManager from './src/websocket/socket-manager .js';
 
 const app = express();
+const server = http.createServer(app);
+new SocketManager(server, { path: '/rooms', cors: { origin: '*' } });
+
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
-
-const server = http.createServer(app);
-
-const io = new Server(server, { path: '/rooms', cors: { origin: 'http://localhost:3000' } });
 
 const port = 5000;
 server.listen(port, async () => {
