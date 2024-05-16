@@ -1,16 +1,18 @@
 import express from 'express';
 import UserController from './user-controller.js';
-import UserErrorHandler from './user-error-handler.js';
-import UserValidator from './user-validator.js';
+import userErrorHandler from './user-error-handler.js';
+import userValidator from './user-validator.js';
 
 const userRouter = express.Router();
 
-userRouter.post('/join', UserValidator.join, UserController.join);
+const userController = new UserController();
 
-userRouter.post('/login', UserController.login);
+userRouter.post('/join', userValidator.join, userController.join);
 
-userRouter.post('/logout', UserController.logout);
+userRouter.post('/login', userController.login);
 
-userRouter.use(UserErrorHandler.catch);
+userRouter.post('/logout', userController.logout);
+
+userRouter.use(userErrorHandler.catch);
 
 export default userRouter;

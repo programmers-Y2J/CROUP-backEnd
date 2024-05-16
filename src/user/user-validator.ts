@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { ValidationError } from '../errors/custom-errors.js';
 
-class UserValidator {
-  static async join(req: Request, res: Response, next: NextFunction) {
+const userValidator = {
+  join: (req: Request, res: Response, next: NextFunction) => {
     const { email, password, nickName } = req.body;
 
     if (!email) {
@@ -29,7 +29,7 @@ class UserValidator {
     }
 
     next();
-  }
-}
+  },
+};
 
-export default UserValidator;
+export default userValidator;
