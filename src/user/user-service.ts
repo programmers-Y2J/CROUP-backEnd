@@ -1,27 +1,29 @@
 import { AppDataSource } from '../../config/db/data-source.js';
 import { User } from '../../config/db/entity/User.js';
 import bcrypt from 'bcrypt';
+import { NotFoundError } from '../errors/custom-errors.js';
 
-class UserService {
-  private mongoManager;
-
-  constructor() {
-    this.mongoManager = AppDataSource.mongoManager;
-  }
-
+const userService = {
   async joinUser(email: string, password: string, nickName: string) {
-    const hashPwd = await this.hashing(password);
-    return this.mongoManager.insert(User, { email, password: hashPwd, nickName });
-  }
-
-  login() {}
-
-  logout() {}
-
-  private async hashing(password: string) {
     const hashPwd = await bcrypt.hash(password, 12);
-    return hashPwd;
-  }
-}
+    return AppDataSource.mongoManager.insert(User, { email, password: hashPwd, nickName });
+  },
 
-export default UserService;
+  async login(email: string, password: string) {
+    const user = await AppDataSource.mongoManager.findOne(User, { where: { email } });
+
+    if (user) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (isPasswordValid) {
+        return user;
+      }
+      throw new NotFoundError('이메일 또는 비밀번호가 틀립니다', 404);
+    }
+
+    throw new NotFoundError('이메일 또는 비밀번호가 틀립니다', 404);
+  },
+
+  logout() {},
+};
+
+export default userService;

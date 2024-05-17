@@ -1,5 +1,5 @@
 const resTemplate = {
-  JSON: (success: boolean, message: string) => {
+  JSON(success: boolean, message: string) {
     return { success, message };
   },
 };

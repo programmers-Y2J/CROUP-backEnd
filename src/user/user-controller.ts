@@ -1,28 +1,37 @@
-import { Request, Response, NextFunction } from 'express';
+import e, { Request, Response, NextFunction } from 'express';
 import ResTemplate from '../template/res-template.js';
-import UserService from './user-service.js';
+import tokenManager from '../token/token-manager.js';
+import userService from './user-service.js';
+import userValidator from './user-validator.js';
 
-class UserController {
-  private userService;
-
-  constructor() {
-    this.userService = new UserService();
-  }
-
+const userController = {
   async join(req: Request, res: Response, next: NextFunction) {
     const { email, password, nickName } = req.body;
 
     try {
-      await this.userService.joinUser(email, password, nickName);
+      userValidator.join(email, password, nickName);
+      await userService.joinUser(email, password, nickName);
       res.status(201).json(ResTemplate.JSON(true, 'Created'));
     } catch (e) {
       next(e);
     }
-  }
+  },
 
-  login() {}
+  async login(req: Request, res: Response, next: NextFunction) {
+    const { email, password } = req.body;
 
-  logout() {}
-}
+    try {
+      userValidator.login(email, password);
+      const user = await userService.login(email, password);
+      const token = tokenManager.create(user.id.toString());
+      res.cookie('tk', token);
+      res.status(200).json({ userId: user.id, nickName: user.nickName });
+    } catch (e) {
+      next(e);
+    }
+  },
 
-export default UserController;
+  logout() {},
+};
+
+export default userController;
