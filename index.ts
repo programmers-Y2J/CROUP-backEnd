@@ -4,6 +4,7 @@ import cors from 'cors';
 import { AppDataSource } from './config/db/data-source.js';
 import cookieParser from 'cookie-parser';
 import SocketManager from './src/websocket/socket-manager .js';
+import userRouter from './src/user/user-router.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -12,6 +13,8 @@ new SocketManager(server, { path: '/rooms', cors: { origin: '*' } });
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
+
+app.use('/auth', userRouter);
 
 const port = 5000;
 server.listen(port, async () => {

@@ -9,4 +9,6 @@ class MyError extends Error {
 
 class ValidationError extends MyError {}
 
-export { MyError, ValidationError };
+class NotFoundError extends MyError {}
+
+export { MyError, ValidationError, NotFoundError };
