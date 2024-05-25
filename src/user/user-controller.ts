@@ -1,4 +1,4 @@
-import e, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import ResTemplate from '../template/res-template.js';
 import tokenManager from '../token/token-manager.js';
 import userService from './user-service.js';
@@ -24,8 +24,8 @@ const userController = {
       userValidator.login(email, password);
       const user = await userService.login(email, password);
       const token = tokenManager.create(user.id.toString());
-      res.cookie('tk', token);
-      res.status(200).json({ userId: user.id, nickName: user.nickName });
+
+      res.status(200).json({ userId: user.id, nickName: user.nickName, token });
     } catch (e) {
       next(e);
     }
