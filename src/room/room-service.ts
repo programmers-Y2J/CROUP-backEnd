@@ -1,74 +1,102 @@
-import { getRepository, FindOneOptions } from 'typeorm';
+import { FindOneOptions } from 'typeorm';
 import { Room } from '../../config/db/entity/Room.js';
 import { ObjectId } from 'mongodb';
 import { getPlaylistThumbnail } from '../utils.js';
+import { AppDataSource } from '../../config/db/data-source.js';
 
-export const createRoomService = async (title: string, description: string, playListUrl: string) => {
-    const roomRepository = getRepository(Room);
-    const thumbnail = await getPlaylistThumbnail(playListUrl);
-  
-    const newRoom = roomRepository.create({
-      roomTitle: title,
-      roomDescription: description,
-      playListUrl,
-      roomThumbnail: thumbnail,
-    });
-  
-    await roomRepository.save(newRoom);
-  
-    return { success: true, message: 'Created' };
+export const createRoomService = async (managerId: string, title: string, description: string, playListUrl: string, playList: any[]) => {
+  const roomRepository = AppDataSource.getRepository(Room);
+  const thumbnail = await getPlaylistThumbnail(playListUrl);
+
+  const newRoom = roomRepository.create({
+    managerId,
+    roomTitle: title,
+    roomDescription: description,
+    playListUrl,
+    roomThumbnail: thumbnail,
+    playList,
+    roomMember: [{ userId: managerId, nickName: '관리자' }], // 방 생성자는 자동으로 관리자 역할로 추가
+    chats: [],
+  });
+
+  await roomRepository.save(newRoom);
+
+  return { success: true, message: 'Created' };
+};
+export const getRoomsService = async () => {
+  const roomRepository = AppDataSource.getRepository(Room);
+  const rooms = await roomRepository.find({
+    select: ['roomTitle', '_id', 'roomDescription', 'roomThumbnail']
+  });
+
+  const roomList = rooms.map((room) => ({
+    roomTitle: room.roomTitle,
+    roomId: room._id.toString(),
+    roomDescription: room.roomDescription,
+    roomThumbnail: room.roomThumbnail,
+  }));
+
+  return { roomList };
+};
+
+export const getRoomService = async (roomId: string) => {
+  const roomRepository = AppDataSource.getRepository(Room);
+  const objectId = new ObjectId(roomId);
+  const room = await roomRepository.findOne(objectId as FindOneOptions<Room>);
+
+  if (!room) {
+    return null;
+  }
+
+  const { roomTitle, roomDescription, roomThumbnail, playList, roomMember, chats } = room;
+
+  return {
+    roomTitle,
+    roomId: objectId.toString(),
+    roomDescription,
+    roomThumbnail,
+    playList,
+    roomMember,
+    chats,
   };
-  
-  export const getRoomsService = async () => {
-    const roomRepository = getRepository(Room);
-    const rooms = await roomRepository.find({
-      select: ['roomTitle', '_id', 'roomDescription', 'roomThumbnail']
-    });
-  
-    const roomList = rooms.map((room) => ({
-      roomTitle: room.roomTitle,
-      roomId: room._id.toString(), 
-      roomDescription: room.roomDescription,
-      roomThumbnail: room.roomThumbnail,
-    }));
-  
-    return { roomList };
+};
+
+export const deleteRoomService = async (roomId: string) => {
+  const roomRepository = AppDataSource.getRepository(Room);
+  const objectId = new ObjectId(roomId);
+  const room = await roomRepository.findOne(objectId as FindOneOptions<Room>);
+
+  if (!room) {
+    return { error: 'Room not found' };
+  }
+
+  await roomRepository.remove(room);
+  return { success: true, message: 'Deleted' };
+};
+
+export const joinRoomService = async (roomId: string, userId: string, nickName: string) => {
+  const roomRepository = AppDataSource.getRepository(Room);
+  const objectId = new ObjectId(roomId);
+  const room = await roomRepository.findOne(objectId as FindOneOptions<Room>);
+
+  if (!room) {
+    return { error: 'Room not found' };
+  }
+
+  // 이미 방에 참가한 사용자인지 확인
+  const isAlreadyMember = room.roomMember.some(member => member.userId === userId);
+  if (!isAlreadyMember) {
+    room.roomMember.push({ userId, nickName });
+    await roomRepository.save(room);
+  }
+
+  const { roomTitle, roomDescription, roomThumbnail, playList, roomMember, chats } = room;
+
+  return {
+    nickName,
+    userId,
+    playList,
+    roomMember,
+    chats,
   };
-  
-  export const deleteRoomService = async (roomId: string) => {
-    const roomRepository = getRepository(Room);
-    const objectId = new ObjectId(roomId);
-    const room = await roomRepository.findOne(objectId as FindOneOptions<Room>);
-  
-    if (!room) {
-      return { error: 'Room not found' };
-    }
-  
-    await roomRepository.remove(room);
-    return { success: true, message: 'Deleted' };
-  };
-  
-  export const joinRoomService = async (roomId: string) => {
-    const roomRepository = getRepository(Room);
-    const objectId = new ObjectId(roomId);
-    const room = await roomRepository.findOne(objectId as FindOneOptions<Room>);
-  
-    if (!room) {
-      return { error: 'Room not found' };
-    }
-  
-    const { roomTitle, roomDescription, playListUrl, roomThumbnail, roomMember, chats } = room;
-    const playList: { musicTitle: string; musicThumbnail: string; musicChannelTitle: string }[] = [];
-  
-    return {
-      rooms: {
-        roomTitle,
-        roomId: objectId,
-        roomDescription,
-        roomThumbnail,
-      },
-      playList,
-      roomMember,
-      chats,
-    };
-  };
+};
