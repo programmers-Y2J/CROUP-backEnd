@@ -21,6 +21,9 @@ export class Room {
   playListUrl: string;
 
   @Column('simple-array')
+  playList: {musicTitle: string; musicThumbnail:string; musicChannelTitle:string; videoId:string }[];
+
+  @Column('simple-array')
   roomMember: { userId: string; nickName: string }[];
 
   @Column('text', { array: true, default: [] })
