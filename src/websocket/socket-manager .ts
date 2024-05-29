@@ -51,11 +51,12 @@ class SocketManager {
             this.io.to(stringRoomId).emit('boom', message);
             return AppDataSource.mongoManager.delete(Room, room._id);
           }
+
           //방장이 아니면 접속중인 맴버 목록에서 제거
           const refreshMember = room.roomMember.filter(member => member.userId !== userId);
           await AppDataSource.mongoManager.updateOne(Room, { _id: room._id }, { $set: { roomMember: refreshMember } });
           this.io.to(stringRoomId).emit('updateUser', refreshMember);
-      }
+        }
       });
     });
   }
