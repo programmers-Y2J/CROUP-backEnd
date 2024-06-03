@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import SocketManager from './src/websocket/socket-manager .js';
 import userRouter from './src/user/user-router.js';
 import roomRouter from './src/room/room-router.js'
+import qnaRouter from './src/qna/qna-router.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +18,7 @@ app.use(cookieParser());
 
 app.use('/auth', userRouter);
 app.use('/rooms', roomRouter);
+app.use('/:roomId/question', qnaRouter);
 
 const port = 5000;
 server.listen(port, async () => {
