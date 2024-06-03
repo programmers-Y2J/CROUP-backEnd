@@ -27,5 +27,5 @@ export class Room {
   roomMember: { userId: string; nickName: string }[];
 
   @Column('json', { default: [] })
-  chats: { nickName: string; chat: string }[];
+  chats: { userId: string; nickName: string; chat: string }[];
 }
