@@ -3,22 +3,16 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-interface AuthRequest extends Request {
-  user?: {
-    userId: string;
-  };
-}
-
-const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({ success: false, message: '로그인을 해주세요' });
   }
-
+  
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    req.user = { userId: decoded.userId };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; nickName: string  };
+    req.user = { userId: decoded.userId, nickName: decoded.nickName };
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid token' });
