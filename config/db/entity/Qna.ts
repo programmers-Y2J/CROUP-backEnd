@@ -9,7 +9,10 @@ export class Qna {
   roomId: string;
 
   @Column()
-  userId: string;
+  userId: ObjectId;
+
+  @Column()
+  userName: string;
 
   @Column()
   title: string;
@@ -17,6 +20,6 @@ export class Qna {
   @Column()
   content: string;
 
-  @Column('json', { default: [] })
-  comments: { commentId: string; userId: string; userName: string; content: string }[];
+  @Column('json')
+  comments: { commentId: string; userId: ObjectId; userName: string; content: string }[];
 }

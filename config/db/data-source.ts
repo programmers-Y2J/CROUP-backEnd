@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { User } from './entity/User.js';
 import dotenv from 'dotenv';
 import { Room } from './entity/Room.js';
+import { Qna } from './entity/Qna.js';
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -11,7 +12,7 @@ export const AppDataSource = new DataSource({
   database: 'croup',
   synchronize: true,
   logging: false,
-  entities: [User, Room],
+  entities: [User, Room, Qna],
   migrations: [],
   subscribers: [],
 });
