@@ -20,12 +20,12 @@ export class Room {
   @Column()
   playListUrl: string;
 
-  @Column('simple-array')
+  @Column('json')
   playList: { musicTitle: string; musicThumbnail: string; musicChannelTitle: string; videoId: string }[];
 
-  @Column('simple-array')
+  @Column('json')
   roomMember: { userId: string; nickName: string }[];
 
-  @Column('text', { array: true, default: [] })
+  @Column('json', { default: [] })
   chats: { userId: string; nickName: string; chat: string }[];
 }

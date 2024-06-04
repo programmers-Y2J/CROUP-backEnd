@@ -7,7 +7,6 @@ import SocketManager from './src/websocket/socket-manager .js';
 import userRouter from './src/user/user-router.js';
 import roomRouter from './src/room/room-router.js'
 
-
 const app = express();
 const server = http.createServer(app);
 new SocketManager(server, { path: '/rooms', cors: { origin: '*' } });
@@ -18,7 +17,6 @@ app.use(cookieParser());
 
 app.use('/auth', userRouter);
 app.use('/rooms', roomRouter);
-
 
 const port = 5000;
 server.listen(port, async () => {
