@@ -14,7 +14,7 @@ class SocketManager {
 
   private setupEventHandlers() {
     this.io.on('connection', socket => {
-      socket.on('chat', async (chatData: { nickName: string; chat: string }, roomId: string) => {
+      socket.on('chat', async (chatData: { userId: string; nickName: string; chat: string }, roomId: string) => {
         const roomRepository = AppDataSource.getRepository(Room);
         const room = await roomRepository.findOne({ where: { _id: new ObjectId(roomId) } });
         if (room) {
@@ -39,8 +39,8 @@ class SocketManager {
 
       socket.on('disconnect', async () => {
         const userId = socket.handshake.query.userId as string;
-        const room = await AppDataSource.getMongoRepository(Room).findOne({
-          where: { roomMember: { $eleMatch: { userId: userId } } },
+        const room = await AppDataSource.mongoManager.findOne(Room, {
+          where: { roomMember: { $in: [{ userId: userId }] } },
         });
 
         if (room) {
@@ -51,11 +51,12 @@ class SocketManager {
             this.io.to(stringRoomId).emit('boom', message);
             return AppDataSource.mongoManager.delete(Room, room._id);
           }
+
           //방장이 아니면 접속중인 맴버 목록에서 제거
           const refreshMember = room.roomMember.filter(member => member.userId !== userId);
           await AppDataSource.mongoManager.updateOne(Room, { _id: room._id }, { $set: { roomMember: refreshMember } });
           this.io.to(stringRoomId).emit('updateUser', refreshMember);
-      }
+        }
       });
     });
   }

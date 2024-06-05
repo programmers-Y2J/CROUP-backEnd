@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const tokenManager = {
-  create(userId: string) {
+  create(userId: string, nickName: string) {
     const payload = { userId };
     const token = jwt.sign(payload, process.env.JWT_SECRET!, { algorithm: 'HS512' });
     return token;
