@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 app.use('/auth', userRouter);
 app.use('/rooms', roomRouter);
-app.use('/:roomId/question', qnaRouter);
+
 
 const port = 5000;
 server.listen(port, async () => {
