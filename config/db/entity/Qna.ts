@@ -8,7 +8,7 @@ export class Qna {
   @Column()
   roomId: string;
 
-  @Column()
+  @ObjectIdColumn()
   userId: ObjectId;
 
   @Column()
