@@ -4,7 +4,7 @@ dotenv.config();
 
 const tokenManager = {
   create(userId: string, nickName: string) {
-    const payload = { userId };
+    const payload = { userId, nickName };
     const token = jwt.sign(payload, process.env.JWT_SECRET!, { algorithm: 'HS512' });
     return token;
   },
@@ -16,6 +16,7 @@ const tokenManager = {
     } catch (error) {
       throw new Error('Invalid token');
     }
-  },};
+  },
+};
 
 export default tokenManager;
