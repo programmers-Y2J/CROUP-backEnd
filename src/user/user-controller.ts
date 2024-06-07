@@ -23,8 +23,9 @@ const userController = {
     try {
       userValidator.login(email, password);
       const user = await userService.login(email, password);
-      const token = tokenManager.create(user.id.toString(), user.nickName);
-      res.status(200).json({ userId: user.id, nickName: user.nickName, token });
+      const token = tokenManager.create(user.id.toString(),user.nickName.toString());
+      res.status(200).json({ userId: user.id, nickName: user.nickName, token: token });
+
     } catch (e) {
       next(e);
     }

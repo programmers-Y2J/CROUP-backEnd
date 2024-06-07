@@ -3,8 +3,8 @@ import Joi from 'joi';
 
 export const validateCreateRoom = (req: Request, res: Response, next: NextFunction) => {
   const schema = Joi.object({
-    title: Joi.string().required(),
-    description: Joi.string().required(),
+    roomTitle: Joi.string().required(),
+    roomDescription: Joi.string().required(),
     playListUrl: Joi.string().uri().required(),
     playList: Joi.array().items(
       Joi.object({

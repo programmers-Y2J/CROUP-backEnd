@@ -1,18 +1,23 @@
 import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
 
+const dateTransformer = {
+  to: (value: Date) => value,
+  from: (value: Date) => value.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+};
+
 @Entity()
 export class Qna {
   @ObjectIdColumn()
   _id: ObjectId;
 
   @Column()
-  roomId: string;
+  roomId: ObjectId;
 
-  @ObjectIdColumn()
+  @Column()
   userId: ObjectId;
 
   @Column()
-  userName: string;
+  nickName: string;
 
   @Column()
   title: string;
@@ -20,6 +25,9 @@ export class Qna {
   @Column()
   content: string;
 
-  @Column('json')
-  comments: { commentId: string; userId: ObjectId; userName: string; content: string }[];
+  @Column({ type: 'datetime', transformer: dateTransformer })
+  createdAt: Date;
+
+  @Column('array')
+  comments: { commentId: ObjectId; userId: ObjectId; nickName: string; content: string }[];
 }
