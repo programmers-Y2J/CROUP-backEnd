@@ -11,8 +11,8 @@ const tokenManager = {
 
   verify(token: string) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-      return decoded.userId;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string, nickName: string };
+      return { userId: decoded.userId, nickName: decoded.nickName };
     } catch (error) {
       throw new Error('Invalid token');
     }

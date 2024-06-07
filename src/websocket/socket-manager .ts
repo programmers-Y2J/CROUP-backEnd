@@ -18,7 +18,11 @@ class SocketManager {
         const roomRepository = AppDataSource.getRepository(Room);
         const room = await roomRepository.findOne({ where: { _id: new ObjectId(roomId) } });
         if (room) {
-          room.chats.push(chatData);
+          room.chats.push({
+            userId: new ObjectId(chatData.userId),
+            nickName: chatData.nickName,
+            chat: chatData.chat,
+          });
           await roomRepository.save(room);
           this.io.to(room._id.toString()).emit('chat', chatData); //해당 방에 댓글 데이터 전송
         }
@@ -29,7 +33,10 @@ class SocketManager {
         const room = await roomRepository.findOne({ where: { _id: new ObjectId(roomId) } });
 
         if (room) {
-          room.roomMember.push(user);
+          room.roomMember.push({
+            userId: new ObjectId(user.userId),
+            nickName: user.nickName,
+          });
           await roomRepository.save(room);
           const stringRoomId = room._id.toString();
           socket.join(stringRoomId); //방 입장
@@ -53,7 +60,7 @@ class SocketManager {
           }
 
           //방장이 아니면 접속중인 맴버 목록에서 제거
-          const refreshMember = room.roomMember.filter(member => member.userId !== userId);
+          const refreshMember = room.roomMember.filter(member => !member.userId.equals(new ObjectId(userId)));
           await AppDataSource.mongoManager.updateOne(Room, { _id: room._id }, { $set: { roomMember: refreshMember } });
           this.io.to(stringRoomId).emit('updateUser', refreshMember);
         }

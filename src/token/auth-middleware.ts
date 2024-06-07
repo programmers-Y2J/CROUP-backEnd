@@ -15,7 +15,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     req.user = { userId: decoded.userId, nickName: decoded.nickName };
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: '토큰을 찾을 수 없습니다.' });
   }
 };
 
