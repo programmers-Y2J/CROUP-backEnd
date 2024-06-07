@@ -42,7 +42,6 @@ export const getRoom = async (req: Request, res: Response) => {
   }
 };
 
-
 export const deleteRoom = async (req: Request, res: Response) => {
   const { roomId } = req.body;
   const { userId } = req.user!;

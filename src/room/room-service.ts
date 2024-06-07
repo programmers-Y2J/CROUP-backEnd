@@ -4,24 +4,17 @@ import { ObjectId } from 'mongodb';
 import { getPlaylistThumbnail } from '../utils.js';
 import { AppDataSource } from '../../config/db/data-source.js';
 
-export const createRoomService = async (managerId: string, title: string, description: string, playListUrl: string, playList: any[]) => {
+export const createRoomService = async (userId: string, title: string, description: string, playListUrl: string, playList: any[]) => {
   const roomRepository = AppDataSource.getRepository(Room);
-  let thumbnail;
-
-  try {
-    thumbnail = await getPlaylistThumbnail(playListUrl);
-  } catch (error) {
-    throw new Error('Invalid URL');
-  }
-
+  
   const newRoom = roomRepository.create({
-    managerId,
+    managerId: userId,
     roomTitle: title,
     roomDescription: description,
     playListUrl,
-    roomThumbnail: thumbnail,
+    roomThumbnail: 'thumbnailUrl',
     playList,
-    roomMember: [{ userId: managerId, nickName: '관리자' }], 
+    roomMember: [{ userId: new ObjectId(userId), nickName: '관리자' }],
     chats: [],
   });
 
@@ -55,19 +48,15 @@ export const getRoomService = async (roomId: string, userId: string) => {
     return { success: false, message: '방을 찾을 수 없습니다.' };
   }
 
-  const isMember = room.roomMember.some(member => member.userId === userId);
+  const isMember = room.roomMember.some(member => member.userId.equals(new ObjectId(userId))); 
 
   if (!isMember) {
     return { success: false, message: '방에 참여하지 않은 사용자입니다.' };
   }
 
-  const { roomTitle, roomDescription, roomThumbnail, playList, roomMember, chats } = room;
+  const { playList, roomMember, chats } = room;
 
   return {
-    roomTitle,
-    roomId: objectId.toString(),
-    roomDescription,
-    roomThumbnail,
     playList,
     roomMember,
     chats,
@@ -100,9 +89,10 @@ export const joinRoomService = async (roomId: string, userId: string, nickName: 
     return {success: false,  message: '방을 찾을 수 없습니다.' };
   }
 
-  const isAlreadyMember = room.roomMember.some(member => member.userId === userId);
+  const isAlreadyMember = room.roomMember.some(member => member.userId.equals(new ObjectId(userId))); 
+
   if (!isAlreadyMember) {
-    room.roomMember.push({ userId, nickName });
+    room.roomMember.push({ userId: new ObjectId(userId), nickName }); 
     await roomRepository.save(room);
   }
 

@@ -5,8 +5,8 @@ export class Room {
   @ObjectIdColumn()
   _id: ObjectId;
 
-  @Column({ unique: true })
-  managerId: string; //유저의 id값을 참조
+  @Column()
+  managerId: string;
 
   @Column()
   roomTitle: string;
@@ -20,12 +20,12 @@ export class Room {
   @Column()
   playListUrl: string;
 
-  @Column('json')
+  @Column('array')
   playList: { musicTitle: string; musicThumbnail: string; musicChannelTitle: string; videoId: string }[];
 
-  @Column('json')
-  roomMember: { userId: string; nickName: string }[];
+  @Column('array')
+  roomMember: { userId: ObjectId; nickName: string }[];
 
-  @Column('json', { default: [] })
-  chats: { userId: string; nickName: string; chat: string }[];
+  @Column('array', { default: [] })
+  chats: { userId: ObjectId; nickName: string; chat: string }[];
 }
