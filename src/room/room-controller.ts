@@ -2,15 +2,24 @@ import { Request, Response } from 'express';
 import { createRoomService, getRoomsService, deleteRoomService, joinRoomService, getRoomService } from './room-service.js';
 
 export const createRoom = async (req: Request, res: Response) => {
-  const { title, description, playListUrl, playList } = req.body;
+  const { roomTitle, roomDescription, playListUrl, playList } = req.body;
   const { userId } = req.user!;
 
-  if (!title || !description || !playListUrl || !playList) {
-    return res.status(400).json({ success: false, message: '입력값이 없습니다.' });
+  const missingFields = [];
+  if (!roomTitle) missingFields.push('title');
+  if (!roomDescription) missingFields.push('description');
+  if (!playListUrl) missingFields.push('playListUrl');
+  if (!playList) missingFields.push('playList');
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      success: false,
+      message: `${missingFields.join(', ')}의 입력값이 없습니다`
+    });
   }
   
   try {
-    const result = await createRoomService(userId, title, description, playListUrl, playList);
+    const result = await createRoomService(userId, roomTitle, roomDescription, playListUrl, playList);
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });

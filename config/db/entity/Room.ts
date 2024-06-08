@@ -3,7 +3,7 @@ import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
 @Entity()
 export class Room {
   @ObjectIdColumn()
-  _id: ObjectId;
+  id: ObjectId;
 
   @Column()
   managerId: string;

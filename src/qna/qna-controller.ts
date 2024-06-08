@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { createQuestionService, updateQuestionService, getQuestionsService, getQuestionDetailService, addCommentService } from './qna-service.js';
 
 export const createQuestion = async (req: Request, res: Response) => {
-  const { roomId, title, content } = req.body;
+  const { title, content } = req.body;
+  const { roomId } = req.params; 
   const { userId, nickName } = req.user!;
 
   if (!roomId || !title || !content) {
@@ -18,7 +19,8 @@ export const createQuestion = async (req: Request, res: Response) => {
 };
 
 export const updateQuestion = async (req: Request, res: Response) => {
-  const { questionId, title, content } = req.body;
+  const { title, content } = req.body;
+  const { questionId } = req.params; 
   const { userId } = req.user!;
 
   if (!questionId || !title || !content) {
@@ -56,7 +58,8 @@ export const getQuestionDetail = async (req: Request, res: Response) => {
 };
 
 export const addComment = async (req: Request, res: Response) => {
-  const { questionId, content } = req.body;
+  const { content } = req.body;
+  const { questionId } = req.params;
   const { userId, nickName } = req.user!;
 
   if (!questionId || !content) {

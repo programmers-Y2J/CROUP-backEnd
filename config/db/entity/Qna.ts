@@ -1,20 +1,33 @@
 import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
 
 const dateTransformer = {
-  to: (value: Date) => value,
-  from: (value: Date) => value.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+  from: (date: Date | null): string | null => {
+    if (!date) return null;
+    const koreanTime = date.toLocaleString('en-US', { timeZone: 'Asia/Seoul' });
+    const [datePart, timePart] = koreanTime.split(', ');
+    const [month, day, year] = datePart.split('/');
+    const [hours, minutes, seconds] = timePart.split(':');
+    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hours}:${minutes}:${seconds}`;
+    return formattedDate;
+  },
+  to: (dateString: string | null): Date | null => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const koreanDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    return koreanDate;
+  }
 };
 
 @Entity()
 export class Qna {
   @ObjectIdColumn()
-  _id: ObjectId;
+  id: ObjectId;
 
   @Column()
-  roomId: ObjectId;
+  roomId: string;
 
   @Column()
-  userId: ObjectId;
+  userId: string;
 
   @Column()
   nickName: string;
@@ -29,5 +42,5 @@ export class Qna {
   createdAt: Date;
 
   @Column('array')
-  comments: { commentId: ObjectId; userId: ObjectId; nickName: string; content: string }[];
+  comments: { commentId: string; userId: string; nickName: string; content: string }[];
 }
