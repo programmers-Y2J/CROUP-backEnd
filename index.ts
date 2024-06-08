@@ -19,6 +19,7 @@ app.use(cookieParser());
 
 app.use('/auth', userRouter);
 app.use('/rooms', roomRouter);
+app.use('/room/:roomId', qnaRouter)
 
 
 const port = 5000;
