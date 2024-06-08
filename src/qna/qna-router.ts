@@ -8,13 +8,7 @@ const qnaRouter = express.Router();
 qnaRouter.post('/question', authMiddleware, validateCreateQuestion, createQuestion);
 qnaRouter.put('/question/:questionId', authMiddleware, updateQuestion);
 qnaRouter.get('/questions', authMiddleware, getQuestions);
-qnaRouter.get('question/:questionId', authMiddleware, getQuestionDetail);
+qnaRouter.get('/question/:questionId', authMiddleware, getQuestionDetail);
 qnaRouter.post('/question/:questionId/comments', authMiddleware, validateCreateComment,addComment);
-
-// qnaRouter.post('/question', validateCreateQuestion, createQuestion);
-// qnaRouter.put('/question/:questionId', updateQuestion);
-// qnaRouter.get('/questions', getQuestions);
-// qnaRouter.get('question/:questionId', getQuestionDetail);
-// qnaRouter.post('/question/:questionId/comments', validateCreateComment,addComment);
 
 export default qnaRouter;
