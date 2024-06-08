@@ -5,10 +5,10 @@ import { validateCreateQuestion, validateCreateComment  } from './qna-validator.
 
 const qnaRouter = express.Router();
 
-qnaRouter.post('/question', authMiddleware, validateCreateQuestion, createQuestion);
-qnaRouter.put('/question/:questionId', authMiddleware, updateQuestion);
-qnaRouter.get('/questions', authMiddleware, getQuestions);
-qnaRouter.get('/question/:questionId', authMiddleware, getQuestionDetail);
-qnaRouter.post('/question/:questionId/comments', authMiddleware, validateCreateComment,addComment);
+qnaRouter.post('/room/:roomId/question', authMiddleware, validateCreateQuestion, createQuestion);
+qnaRouter.put('/room/:roomId/question/:questionId', authMiddleware, updateQuestion);
+qnaRouter.get('/room/:roomId/questions', authMiddleware, getQuestions);
+qnaRouter.get('/room/:roomId/question/:questionId', authMiddleware, getQuestionDetail);
+qnaRouter.post('/room/:roomId/question/:questionId/comments', authMiddleware, validateCreateComment,addComment);
 
 export default qnaRouter;

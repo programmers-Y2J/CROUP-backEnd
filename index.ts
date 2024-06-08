@@ -10,7 +10,7 @@ import qnaRouter from './src/qna/qna-router.js';
 
 const app = express();
 const server = http.createServer(app);
-new SocketManager(server, { path: '/rooms', cors: { origin: '*' } });
+new SocketManager(server, {  cors: { origin: '*' } });
 
 app.use(express.json());
 
@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 app.use('/auth', userRouter);
 app.use('/rooms', roomRouter);
-app.use('/room/:roomId', qnaRouter)
+app.use('', qnaRouter)
 
 
 const port = 5000;

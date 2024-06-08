@@ -1,10 +1,18 @@
 import { ObjectId } from 'mongodb';
 import { Qna } from '../../config/db/entity/Qna.js';
+import { Room } from '../../config/db/entity/Room.js';
 import { AppDataSource } from '../../config/db/data-source.js';
 
 export const createQuestionService = async (roomId: string, userId: string, nickName: string, title: string, content: string) => {
   const qnaRepository = AppDataSource.getRepository(Qna);
-  
+  const objectId = new ObjectId(roomId);
+
+  const room = await AppDataSource.mongoManager.findOne(Room, { where: { _id: objectId } });
+
+  if (!room) {
+    throw new Error('방을 찾을 수 없습니다.');
+  }
+
   const newQuestion = qnaRepository.create({
     roomId,
     userId,
@@ -24,7 +32,7 @@ export const updateQuestionService = async (questionId: string, userId: string, 
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
   
-  const question = await qnaRepository.findOneBy({ id: objectId });
+  const question = await qnaRepository.findOneBy({ _id: objectId });
   
   if (!question || question.userId !== userId) {
     throw new Error('권한이 없습니다.');
@@ -40,11 +48,18 @@ export const updateQuestionService = async (questionId: string, userId: string, 
 
 export const getQuestionsService = async (roomId: string) => {
   const qnaRepository = AppDataSource.getRepository(Qna);
-  
-  const questions = await qnaRepository.findBy({ roomId });
+  const objectId = new ObjectId(roomId);
+
+  const room = await AppDataSource.mongoManager.findOne(Room, { where: { _id: objectId } });
+
+  if (!room) {
+    throw new Error('방을 찾을 수 없습니다.');
+  }
+
+  const questions = await qnaRepository.find({ where: { roomId } });
   
   const qnaList = questions.map(question => ({
-    questionId: question.id.toHexString(),
+    questionId: question._id.toHexString(),
     nickName: question.nickName,
     title: question.title,
     content: question.content,
@@ -58,7 +73,7 @@ export const getQuestionDetailService = async (questionId: string) => {
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
   
-  const question = await qnaRepository.findOneBy({ id: objectId });
+  const question = await qnaRepository.findOneBy({ _id: objectId });
   
   if (!question) {
     throw new Error('글을 찾을 수 없습니다.');
@@ -83,7 +98,7 @@ export const addCommentService = async (questionId: string, userId: string, nick
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
 
-  const question = await qnaRepository.findOneBy({ id: objectId });
+  const question = await qnaRepository.findOneBy({ _id: objectId });
 
   if (!question) {
     throw new Error('글을 찾을 수 없습니다.');

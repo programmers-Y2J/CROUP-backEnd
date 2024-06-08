@@ -28,12 +28,12 @@ export const createRoomService = async (userId: string, roomTitle: string, roomD
 export const getRoomsService = async () => {
   const roomRepository = AppDataSource.getRepository(Room);
   const rooms = await roomRepository.find({
-    select: ['roomTitle', 'id', 'managerId', 'roomDescription', 'roomThumbnail']
+    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail']
   });
 
   const roomList = rooms.map((room) => ({
     roomTitle: room.roomTitle,
-    roomId: room.id.toString(),
+    roomId: room._id.toString(),
     managerId: room.managerId,
     roomDescription: room.roomDescription,
     roomThumbnail: room.roomThumbnail
@@ -45,7 +45,7 @@ export const getRoomsService = async () => {
 export const getRoomService = async (roomId: string, userId: string) => {
   const roomRepository = AppDataSource.getRepository(Room);
   const objectId = new ObjectId(roomId);
-  const room = await roomRepository.findOne({ where: { id: objectId } });
+  const room = await roomRepository.findOne({ where: { _id: objectId } });
   
   if (!room) {
     return { success: false, message: '방을 찾을 수 없습니다.' };
@@ -60,6 +60,7 @@ export const getRoomService = async (roomId: string, userId: string) => {
   const { playList, roomMember, chats } = room;
 
   return {
+    success: true,
     playList,
     roomMember,
     chats,
@@ -69,7 +70,7 @@ export const getRoomService = async (roomId: string, userId: string) => {
 export const deleteRoomService = async (roomId: string, userId: string) => {
   const roomRepository = AppDataSource.getRepository(Room);
   const objectId = new ObjectId(roomId);
-  const room = await roomRepository.findOne({ where: { id: objectId } });
+  const room = await roomRepository.findOne({ where: { _id: objectId } });
 
   if (!room) {
     return { success: false, message: '방을 찾을 수 없습니다' };
@@ -86,7 +87,7 @@ export const deleteRoomService = async (roomId: string, userId: string) => {
 export const joinRoomService = async (roomId: string, userId: string, nickName: string) => {
   const roomRepository = AppDataSource.getRepository(Room);
   const objectId = new ObjectId(roomId);
-  const room = await roomRepository.findOne({ where: { id: objectId } });
+  const room = await roomRepository.findOne({ where: { _id: objectId } });
 
   if (!room) {
     return {success: false,  message: '방을 찾을 수 없습니다.' };

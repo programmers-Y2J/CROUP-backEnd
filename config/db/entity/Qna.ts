@@ -21,7 +21,7 @@ const dateTransformer = {
 @Entity()
 export class Qna {
   @ObjectIdColumn()
-  id: ObjectId;
+  _id: ObjectId;
 
   @Column()
   roomId: string;
