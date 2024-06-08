@@ -6,8 +6,8 @@ export const createQuestionService = async (roomId: string, userId: string, nick
   const qnaRepository = AppDataSource.getRepository(Qna);
   
   const newQuestion = qnaRepository.create({
-    roomId: new ObjectId(roomId),
-    userId: new ObjectId(userId),
+    roomId,
+    userId,
     nickName,
     title,
     content,
@@ -24,9 +24,9 @@ export const updateQuestionService = async (questionId: string, userId: string, 
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
   
-  const question = await qnaRepository.findOneBy({ _id: objectId });
+  const question = await qnaRepository.findOneBy({ id: objectId });
   
-  if (!question || !question.userId.equals(userId)) {
+  if (!question || question.userId !== userId) {
     throw new Error('권한이 없습니다.');
   }
   
@@ -39,37 +39,38 @@ export const updateQuestionService = async (questionId: string, userId: string, 
 };
 
 export const getQuestionsService = async (roomId: string) => {
-    const qnaRepository = AppDataSource.getRepository(Qna);
-    
-    const questions = await qnaRepository.findBy({ roomId: new ObjectId(roomId) });
-    
-    const qnaList = questions.map(question => ({
-      questionId: question._id.toHexString(),
-      nickName: question.nickName,
-      title: question.title,
-      content: question.content,
-      createdAt: question.createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), 
-    }));
-    
-    return { qnaList };
-  };
+  const qnaRepository = AppDataSource.getRepository(Qna);
+  
+  const questions = await qnaRepository.findBy({ roomId });
+  
+  const qnaList = questions.map(question => ({
+    questionId: question.id.toHexString(),
+    nickName: question.nickName,
+    title: question.title,
+    content: question.content,
+    createdAt: question.createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), 
+  }));
+  
+  return { qnaList };
+};
 
 export const getQuestionDetailService = async (questionId: string) => {
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
   
-  const question = await qnaRepository.findOneBy({ _id: objectId });
+  const question = await qnaRepository.findOneBy({ id: objectId });
   
   if (!question) {
     throw new Error('글을 찾을 수 없습니다.');
   }
+
   const questionDetail = {
     title: question.title,
     content: question.content,
     nickName: question.nickName,
     createdAt: question.createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
     comments: question.comments.map(comment => ({
-      commentId: comment.commentId.toHexString(),
+      commentId: comment.commentId,
       nickName: comment.nickName,
       content: comment.content,
     })),
@@ -82,15 +83,15 @@ export const addCommentService = async (questionId: string, userId: string, nick
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
 
-  const question = await qnaRepository.findOneBy({ _id: objectId });
+  const question = await qnaRepository.findOneBy({ id: objectId });
 
   if (!question) {
     throw new Error('글을 찾을 수 없습니다.');
   }
 
   const newComment = {
-    commentId: new ObjectId(),
-    userId: new ObjectId(userId),
+    commentId: new ObjectId().toHexString(), 
+    userId,
     nickName,
     content,
   };
