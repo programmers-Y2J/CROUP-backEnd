@@ -21,6 +21,7 @@
     "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^5.9.2",
+    "ngrok": "^5.0.0-beta.2",
     "node-fetch": "^3.3.2",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.7.5",

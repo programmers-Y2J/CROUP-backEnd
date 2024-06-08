@@ -11,4 +11,10 @@ roomRouter.get('/:roomId', authMiddleware, getRoom);
 roomRouter.delete('', authMiddleware, deleteRoom);
 roomRouter.post('/:roomId', authMiddleware, joinRoom);
 
+// roomRouter.post('', validateCreateRoom, createRoom);
+// roomRouter.get('', getRooms);
+// roomRouter.get('/:roomId', getRoom);
+// roomRouter.delete('', deleteRoom);
+// roomRouter.post('/:roomId', joinRoom);
+
 export default roomRouter;
