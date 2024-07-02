@@ -34,4 +34,7 @@ export class Room {
 
   @Column({ type: 'int', default: 0 })
   memberCount: number;
+
+  @Column()
+  tags: string
 }

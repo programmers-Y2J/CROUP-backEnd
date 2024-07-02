@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { createRoomService, getRoomsService, deleteRoomService, joinRoomService, getRoomService } from './room-service.js';
 
 export const createRoom = async (req: Request, res: Response) => {
-  const { roomTitle, roomDescription, playListUrl, playList } = req.body;
+  const { roomTitle, roomDescription, playListUrl, playList, tags } = req.body;
   const { userId } = req.user!;
 
   const missingFields = [];
@@ -10,6 +10,7 @@ export const createRoom = async (req: Request, res: Response) => {
   if (!roomDescription) missingFields.push('description');
   if (!playListUrl) missingFields.push('playListUrl');
   if (!playList) missingFields.push('playList');
+  if (!tags) missingFields.push('tags');
 
   if (missingFields.length > 0) {
     return res.status(400).json({
@@ -19,7 +20,7 @@ export const createRoom = async (req: Request, res: Response) => {
   }
   
   try {
-    const result = await createRoomService(userId, roomTitle, roomDescription, playListUrl, playList);
+    const result = await createRoomService(userId, roomTitle, roomDescription, playListUrl, playList, tags);
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });

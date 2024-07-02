@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { getPlaylistThumbnail } from '../utils.js';
 import { AppDataSource } from '../../config/db/data-source.js';
 
-export const createRoomService = async (userId: string, roomTitle: string, roomDescription: string, playListUrl: string, playList: any[]) => {
+export const createRoomService = async (userId: string, roomTitle: string, roomDescription: string, playListUrl: string, playList: any[],tags: string) => {
   const roomRepository = AppDataSource.getRepository(Room);
 
   const roomThumbnail = playList.length > 0 ? playList[0].musicThumbnail : 'defaultThumbnailUrl';
@@ -19,7 +19,8 @@ export const createRoomService = async (userId: string, roomTitle: string, roomD
     roomMember: [{ userId: new ObjectId(userId), nickName: '관리자' }],
     chats: [],
     createdAt: new Date(),
-    memberCount: 1 
+    memberCount: 1,
+    tags
   });
 
   await roomRepository.save(newRoom);
@@ -38,7 +39,7 @@ export const getRoomsService = async (sortBy: string) => {
   }
 
   const rooms = await roomRepository.find({
-    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt', 'roomMember'],
+    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt', 'memberCount', 'tags'],
     order: order
   });
 
@@ -49,7 +50,8 @@ export const getRoomsService = async (sortBy: string) => {
     roomDescription: room.roomDescription,
     roomThumbnail: room.roomThumbnail,
     createdAt: room.createdAt,
-    memberCount: room.memberCount
+    memberCount: room.memberCount,
+    tags: room.tags
   }));
 
   return { roomList };
@@ -70,14 +72,15 @@ export const getRoomService = async (roomId: string, userId: string) => {
     return { success: false, message: '방에 참여하지 않은 사용자입니다.' };
   }
 
-  const { playList, roomMember, chats, createdAt } = room;
+  const { playList, roomMember, chats, createdAt, tags } = room;
 
   return {
     success: true,
     playList,
     roomMember,
     chats,
-    createdAt
+    createdAt,
+    tags
   };
 };
 
