@@ -120,3 +120,41 @@ export const joinRoomService = async (roomId: string, userId: string, nickName: 
 
   return { success: true, message: '성공적으로 방에 가입했습니다.' };
 };
+
+export const searchRoomsService = async (query: string, sortBy: string) => {
+  console.log(`Searching rooms - Query: ${query}, SortBy: ${sortBy}`);
+  const roomRepository = AppDataSource.getRepository(Room);
+
+  const searchRegex = new RegExp(query, 'i');
+
+  const findOptions: any = {
+    where: {
+      $or: [
+        { roomTitle: { $regex: searchRegex } },
+        { roomDescription: { $regex: searchRegex } },
+        { tags: { $regex: searchRegex } }
+      ]
+    }
+  };
+
+  if (sortBy === 'popularity') {
+    findOptions.order = { memberCount: 'DESC' };
+  } else {
+    findOptions.order = { createdAt: 'DESC' };
+  }
+
+  const rooms = await roomRepository.find(findOptions);
+
+  const roomList = rooms.map((room) => ({
+    roomTitle: room.roomTitle,
+    roomId: room._id.toString(),
+    managerId: room.managerId,
+    roomDescription: room.roomDescription,
+    roomThumbnail: room.roomThumbnail,
+    createdAt: room.createdAt,
+    memberCount: room.memberCount,
+    tags: room.tags,
+  }));
+
+  return { roomList };
+};
