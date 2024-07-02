@@ -18,6 +18,7 @@ export const createRoomService = async (userId: string, roomTitle: string, roomD
     playList,
     roomMember: [{ userId: new ObjectId(userId), nickName: '관리자' }],
     chats: [],
+    createdAt: new Date() 
   });
 
   await roomRepository.save(newRoom);
@@ -28,7 +29,7 @@ export const createRoomService = async (userId: string, roomTitle: string, roomD
 export const getRoomsService = async () => {
   const roomRepository = AppDataSource.getRepository(Room);
   const rooms = await roomRepository.find({
-    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail']
+    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt']
   });
 
   const roomList = rooms.map((room) => ({
@@ -36,7 +37,8 @@ export const getRoomsService = async () => {
     roomId: room._id.toString(),
     managerId: room.managerId,
     roomDescription: room.roomDescription,
-    roomThumbnail: room.roomThumbnail
+    roomThumbnail: room.roomThumbnail,
+    createdAt: room.createdAt
   }));
 
   return { roomList };
@@ -57,13 +59,14 @@ export const getRoomService = async (roomId: string, userId: string) => {
     return { success: false, message: '방에 참여하지 않은 사용자입니다.' };
   }
 
-  const { playList, roomMember, chats } = room;
+  const { playList, roomMember, chats, createdAt } = room;
 
   return {
     success: true,
     playList,
     roomMember,
     chats,
+    createdAt
   };
 };
 
