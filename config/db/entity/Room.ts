@@ -31,4 +31,7 @@ export class Room {
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
+
+  @Column({ type: 'int', default: 0 })
+  memberCount: number;
 }

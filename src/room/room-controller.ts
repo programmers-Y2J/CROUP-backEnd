@@ -26,9 +26,11 @@ export const createRoom = async (req: Request, res: Response) => {
   }
 };
 
-export const getRooms = async (_req: Request, res: Response) => {
+export const getRooms = async (req: Request, res: Response) => {
+  const sortBy = req.query.sort as string || 'createdAt'; // 기본 정렬 기준은 createdAt
+  
   try {
-    const result = await getRoomsService();
+    const result = await getRoomsService(sortBy);
     res.status(200).json({ rooms: result.roomList });
   } catch (error) {
     res.status(400).json({ success: false, message: '잘못된 요청입니다.' });

@@ -18,7 +18,8 @@ export const createRoomService = async (userId: string, roomTitle: string, roomD
     playList,
     roomMember: [{ userId: new ObjectId(userId), nickName: '관리자' }],
     chats: [],
-    createdAt: new Date() 
+    createdAt: new Date(),
+    memberCount: 1 
   });
 
   await roomRepository.save(newRoom);
@@ -26,10 +27,19 @@ export const createRoomService = async (userId: string, roomTitle: string, roomD
   return { success: true, message: '방이 생성되었습니다.' };
 };
 
-export const getRoomsService = async () => {
+export const getRoomsService = async (sortBy: string) => {
   const roomRepository = AppDataSource.getRepository(Room);
+  let order = {};
+
+  if (sortBy === 'popularity') {
+    order = { memberCount: 'DESC' };
+  } else if (sortBy === 'createdAt') {
+    order = { createdAt: 'DESC' };
+  }
+
   const rooms = await roomRepository.find({
-    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt']
+    select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt', 'roomMember'],
+    order: order
   });
 
   const roomList = rooms.map((room) => ({
@@ -38,7 +48,8 @@ export const getRoomsService = async () => {
     managerId: room.managerId,
     roomDescription: room.roomDescription,
     roomThumbnail: room.roomThumbnail,
-    createdAt: room.createdAt
+    createdAt: room.createdAt,
+    memberCount: room.memberCount
   }));
 
   return { roomList };
@@ -93,13 +104,14 @@ export const joinRoomService = async (roomId: string, userId: string, nickName: 
   const room = await roomRepository.findOne({ where: { _id: objectId } });
 
   if (!room) {
-    return {success: false,  message: '방을 찾을 수 없습니다.' };
+    return { success: false, message: '방을 찾을 수 없습니다.' };
   }
 
-  const isAlreadyMember = room.roomMember.some(member => member.userId.equals(new ObjectId(userId))); 
+  const isAlreadyMember = room.roomMember.some(member => member.userId.equals(new ObjectId(userId)));
 
   if (!isAlreadyMember) {
-    room.roomMember.push({ userId: new ObjectId(userId), nickName }); 
+    room.roomMember.push({ userId: new ObjectId(userId), nickName });
+    room.memberCount += 1; 
     await roomRepository.save(room);
   }
 
