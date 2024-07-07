@@ -13,7 +13,8 @@ export const validateCreateRoom = (req: Request, res: Response, next: NextFuncti
         musicChannelTitle: Joi.string().required(),
         videoId: Joi.string().required()
       })
-    ).required()
+    ).required(),
+    tags: Joi.string().required()
   });
 
   const { error } = schema.validate(req.body);

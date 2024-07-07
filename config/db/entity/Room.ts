@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class Room {
@@ -28,4 +28,13 @@ export class Room {
 
   @Column('array', { default: [] })
   chats: { userId: ObjectId; nickName: string; chat: string }[];
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @Column({ type: 'int', default: 0 })
+  memberCount: number;
+
+  @Column()
+  tags: string
 }
