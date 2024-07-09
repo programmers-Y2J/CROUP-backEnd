@@ -121,3 +121,36 @@ export const addCommentService = async (questionId: string, userId: string, nick
 
   return { success: true, message: '댓글 생성 완료되었습니다.' };
 };
+
+export const searchQuestionsService = async (roomId: string, query: string) => {
+  const qnaRepository = AppDataSource.getRepository(Qna);
+  const objectId = new ObjectId(roomId);
+  
+  const room = await AppDataSource.mongoManager.findOne(Room, { where: { _id: objectId } });
+
+  if (!room) {
+    throw new Error('방을 찾을 수 없습니다.');
+  }
+
+  const searchQuery = {
+    roomId,
+    $or: [
+      { title: { $regex: query, $options: 'i' } },
+      { content: { $regex: query, $options: 'i' } },
+      { tags: { $regex: query, $options: 'i' } },
+    ],
+  };
+
+  const questions = await qnaRepository.find({ where: searchQuery });
+
+  const qnaList = questions.map(question => ({
+    questionId: question._id.toHexString(),
+    nickName: question.nickName,
+    title: question.title,
+    content: question.content,
+    tags: question.tags,
+    createdAt: question.createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+  }));
+
+  return { success: true, qnaList };
+};

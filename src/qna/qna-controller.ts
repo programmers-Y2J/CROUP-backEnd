@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createQuestionService, updateQuestionService, getQuestionsService, getQuestionDetailService, addCommentService } from './qna-service.js';
+import { createQuestionService, updateQuestionService, getQuestionsService, getQuestionDetailService, addCommentService, searchQuestionsService } from './qna-service.js';
 
 export const createQuestion = async (req: Request, res: Response) => {
   const { title, content, tags } = req.body;
@@ -68,6 +68,22 @@ export const addComment = async (req: Request, res: Response) => {
   
   try {
     const result = await addCommentService(questionId, userId, nickName, content);
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });
+  }
+};
+
+export const searchQuestions = async (req: Request, res: Response) => {
+  const { roomId } = req.params;
+  const { q: query } = req.query as { q: string };
+
+  if (!query) {
+    return res.status(400).json({ success: false, message: '검색어를 입력하세요.' });
+  }
+
+  try {
+    const result = await searchQuestionsService(roomId, query);
     res.status(200).json(result);
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });
