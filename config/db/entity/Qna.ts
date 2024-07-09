@@ -1,4 +1,5 @@
 import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
+import { ColumnMetadata } from 'typeorm/metadata/ColumnMetadata.js';
 
 const dateTransformer = {
   from: (date: Date | null): string | null => {
@@ -37,6 +38,9 @@ export class Qna {
 
   @Column()
   content: string;
+
+  @Column()
+  tags: string;
 
   @Column({ type: 'datetime', transformer: dateTransformer })
   createdAt: Date;

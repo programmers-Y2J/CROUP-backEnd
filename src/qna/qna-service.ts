@@ -3,7 +3,7 @@ import { Qna } from '../../config/db/entity/Qna.js';
 import { Room } from '../../config/db/entity/Room.js';
 import { AppDataSource } from '../../config/db/data-source.js';
 
-export const createQuestionService = async (roomId: string, userId: string, nickName: string, title: string, content: string) => {
+export const createQuestionService = async (roomId: string, userId: string, nickName: string, title: string, content: string, tags: string) => {
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(roomId);
 
@@ -19,6 +19,7 @@ export const createQuestionService = async (roomId: string, userId: string, nick
     nickName,
     title,
     content,
+    tags, 
     comments: [],
     createdAt: new Date(),
   });
@@ -28,7 +29,7 @@ export const createQuestionService = async (roomId: string, userId: string, nick
   return { success: true, message: '글이 성공적으로 업로드되었습니다.' };
 };
 
-export const updateQuestionService = async (questionId: string, userId: string, title: string, content: string) => {
+export const updateQuestionService = async (questionId: string, userId: string, title: string, content: string, tags: string) => {
   const qnaRepository = AppDataSource.getRepository(Qna);
   const objectId = new ObjectId(questionId);
   
@@ -40,6 +41,7 @@ export const updateQuestionService = async (questionId: string, userId: string, 
   
   question.title = title;
   question.content = content;
+  question.tags = tags; 
   
   await qnaRepository.save(question);
   
@@ -63,6 +65,7 @@ export const getQuestionsService = async (roomId: string) => {
     nickName: question.nickName,
     title: question.title,
     content: question.content,
+    tags: question.tags, 
     createdAt: question.createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), 
   }));
   
@@ -82,6 +85,7 @@ export const getQuestionDetailService = async (questionId: string) => {
   const questionDetail = {
     title: question.title,
     content: question.content,
+    tags: question.tags, 
     nickName: question.nickName,
     createdAt: question.createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
     comments: question.comments.map(comment => ({

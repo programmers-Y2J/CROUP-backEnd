@@ -2,16 +2,16 @@ import { Request, Response } from 'express';
 import { createQuestionService, updateQuestionService, getQuestionsService, getQuestionDetailService, addCommentService } from './qna-service.js';
 
 export const createQuestion = async (req: Request, res: Response) => {
-  const { title, content } = req.body;
+  const { title, content, tags } = req.body;
   const { roomId } = req.params; 
   const { userId, nickName } = req.user!;
 
-  if (!roomId || !title || !content) {
+  if (!roomId || !title || !content || !tags) {
     return res.status(400).json({ success: false, message: '입력값이 없습니다.' });
   }
   
   try {
-    const result = await createQuestionService(roomId, userId, nickName, title, content);
+    const result = await createQuestionService(roomId, userId, nickName, title, content, tags);
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });
@@ -19,16 +19,16 @@ export const createQuestion = async (req: Request, res: Response) => {
 };
 
 export const updateQuestion = async (req: Request, res: Response) => {
-  const { title, content } = req.body;
+  const { title, content, tags } = req.body;
   const { questionId } = req.params; 
   const { userId } = req.user!;
 
-  if (!questionId || !title || !content) {
+  if (!questionId || !title || !content || !tags) {
     return res.status(400).json({ success: false, message: '입력값이 없습니다.' });
   }
   
   try {
-    const result = await updateQuestionService(questionId, userId, title, content);
+    const result = await updateQuestionService(questionId, userId, title, content, tags);
     res.status(200).json(result);
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });
