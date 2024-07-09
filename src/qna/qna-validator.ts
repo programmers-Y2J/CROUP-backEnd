@@ -5,6 +5,7 @@ export const validateCreateQuestion = (req: Request, res: Response, next: NextFu
   const schema = Joi.object({
     title: Joi.string().required(),
     content: Joi.string().required(),
+    tags: Joi.string().required() 
   });
 
   const { error } = schema.validate(req.body);
