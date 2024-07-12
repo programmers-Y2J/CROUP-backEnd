@@ -28,7 +28,7 @@ app.get('/elb-check', (req, res) => {
 
 const port = 5000;
 server.listen(port, async () => {
-  //서버 실행시 ORM 초기화
+  //서버 실행시 ORM  초기화
   await AppDataSource.initialize()
     .then(async () => {
       console.log('ORM DB연결 성공');
