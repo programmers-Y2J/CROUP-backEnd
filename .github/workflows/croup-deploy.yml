@@ -1,0 +1,28 @@
+name: croup-deploy
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: create zip
+        run: |
+          zip -r eb-docker-deploy.zip config src .dockerignore Dockerfile index.ts package*.json tsconfig.json
+
+      - name: upload-zip
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          aws_access_key: ${{ secrets.ACCSESS_KEY }}
+          aws_secret_key: ${{ secrets.SECRET_ACCSESS_KEY }}
+          region: ap-northeast-2
+          application_name: croup
+          version_label: v1.0.${{ github.run_number }}
+          environment_name: Croup-env-1
+          deployment_package: eb-docker-deploy.zip
