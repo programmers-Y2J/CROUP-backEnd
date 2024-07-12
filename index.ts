@@ -21,6 +21,11 @@ app.use('/auth', userRouter);
 app.use('/rooms', roomRouter);
 app.use('', qnaRouter);
 
+//로드 밸런싱 상태 체크 라우터
+app.get('/elb-check', (req, res) => {
+  res.sendStatus(200);
+});
+
 const port = 5000;
 server.listen(port, async () => {
   //서버 실행시 ORM  초기화
