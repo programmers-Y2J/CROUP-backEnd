@@ -1,4 +1,4 @@
-import { FindOneOptions } from 'typeorm';
+import { FindOneOptions, In } from 'typeorm';
 import { Room } from '../../config/db/entity/Room.js';
 import { ObjectId } from 'mongodb';
 import { getPlaylistThumbnail } from '../utils.js';
@@ -39,8 +39,8 @@ export const getRoomsService = async (currentPage: number, limit: number, sortBy
   }
 
   try {
-    const [rooms, total] = await roomRepository.findAndCount({
-      select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt', 'memberCount', 'tags'],
+    const [roomList, total] = await roomRepository.findAndCount({
+      select: ['roomTitle', '_id', 'managerId', 'roomDescription', 'roomThumbnail', 'createdAt', 'memberCount', 'tags','favorites'],
       order,
       skip: (currentPage - 1) * limit,
       take: limit,
@@ -48,7 +48,7 @@ export const getRoomsService = async (currentPage: number, limit: number, sortBy
 
     const totalPages = Math.ceil(total / limit);
 
-    const roomList = rooms.map((room) => ({
+    const rooms = roomList.map((room) => ({
       roomTitle: room.roomTitle,
       roomId: room._id.toString(),
       managerId: room.managerId,
@@ -57,10 +57,11 @@ export const getRoomsService = async (currentPage: number, limit: number, sortBy
       createdAt: room.createdAt,
       memberCount: room.memberCount,
       tags: room.tags,
+      favorites: room.favorites.length
     }));
 
     return { 
-      roomList, 
+      rooms, 
       currentPage, 
       totalPages, 
       total 
@@ -71,6 +72,48 @@ export const getRoomsService = async (currentPage: number, limit: number, sortBy
   }
 };
 
+export const getAllRoomsService = async (userId: string, currentPage: number, limit: number, sortBy: string) => {
+  const roomRepository = AppDataSource.getRepository(Room);
+
+  const [roomList, total] = await roomRepository.findAndCount({
+    skip: (currentPage - 1) * limit,
+    take: limit,
+    order: sortBy === 'popularity' ? { memberCount: 'DESC' } : { createdAt: 'DESC' }
+  });
+
+  roomList.forEach(room => {
+    if (!room.favorites) {
+      room.favorites = [];
+    }
+  });
+
+  const favoriteRooms = roomList.filter(room => room.favorites.includes(userId));
+  const otherRooms = roomList.filter(room => !room.favorites.includes(userId));
+
+  const sortedRooms = [...favoriteRooms, ...otherRooms];
+
+  const rooms = sortedRooms.map(room => ({
+    roomId: room._id.toHexString(),
+    managerId: room.managerId,
+    roomTitle: room.roomTitle,
+    roomDescription: room.roomDescription,
+    tags: room.tags,
+    createdAt: room.createdAt,
+    memberCount: room.memberCount,
+    favorites: room.favorites.length,
+    isFavorite: room.favorites.includes(userId)
+  }));
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    success: true,
+    rooms,
+    currentPage,
+    totalPages,
+    total
+  };
+};
 
 export const getRoomService = async (roomId: string, userId: string) => {
   const roomRepository = AppDataSource.getRepository(Room);
@@ -158,9 +201,9 @@ export const searchRoomsService = async (query: string, currentPage: number, lim
     findOptions.order = { createdAt: 'DESC' };
   }
 
-  const [rooms, total] = await roomRepository.findAndCount(findOptions);
+  const [roomList, total] = await roomRepository.findAndCount(findOptions);
 
-  const roomList = rooms.map((room) => ({
+  const rooms = roomList.map((room) => ({
     roomTitle: room.roomTitle,
     roomId: room._id.toString(),
     managerId: room.managerId,
@@ -173,5 +216,28 @@ export const searchRoomsService = async (query: string, currentPage: number, lim
 
   const totalPages = Math.ceil(total / limit);
 
-  return { roomList, currentPage, totalPages, total };
+  return { rooms, currentPage, totalPages, total };
+};
+
+export const favoriteRoomService = async (roomId: string, userId: string) => {
+  const roomRepository = AppDataSource.getRepository(Room);
+  const objectId = new ObjectId(roomId);
+
+  const room = await roomRepository.findOneBy({ _id: objectId });
+
+  if (!room) {
+    throw new Error('방을 찾을 수 없습니다.');
+  }
+
+  const userIndex = room.favorites.indexOf(userId);
+
+  if (userIndex === -1) {
+    room.favorites.push(userId);
+    await roomRepository.save(room);
+    return { success: true, message: '방을 즐겨찾기에 추가했습니다.', isFavorite: true };
+  } else {
+    room.favorites.splice(userIndex, 1);
+    await roomRepository.save(room);
+    return { success: true, message: '방을 즐겨찾기에서 제거했습니다.', isFavorite: false };
+  }
 };

@@ -36,5 +36,8 @@ export class Room {
   memberCount: number;
 
   @Column()
-  tags: string
-}
+  tags: string;
+  
+  @Column()
+  favorites: string[] = [];
+};

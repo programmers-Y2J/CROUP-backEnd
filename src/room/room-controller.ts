@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createRoomService, getRoomsService, deleteRoomService, joinRoomService, getRoomService, searchRoomsService } from './room-service.js';
+import { createRoomService, getAllRoomsService, deleteRoomService, joinRoomService, getRoomService, searchRoomsService, favoriteRoomService } from './room-service.js';
 
 export const createRoom = async (req: Request, res: Response) => {
   const { roomTitle, roomDescription, playListUrl, playList, tags } = req.body;
@@ -27,13 +27,18 @@ export const createRoom = async (req: Request, res: Response) => {
   }
 };
 
-export const getRooms = async (req: Request, res: Response) => {
-  const { currentPage = 1, limit = 10, sort = 'createdAt' } = req.query;
+export const getAllRooms = async (req: Request, res: Response) => {
+  const { userId } = req.user!; 
+  const sortBy = req.query.sort as string || 'createdAt';
+  const currentPage = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+
   try {
-    const result = await getRoomsService(Number(currentPage), Number(limit), sort as string);
+    const result = await getAllRoomsService(userId, currentPage, limit, sortBy);
     res.status(200).json(result);
   } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });
+    console.error('Error fetching rooms:', error);
+    res.status(500).json({ success: false, message: '방 목록을 불러오는 중 오류가 발생했습니다.', error: error.message });
   }
 };
 
@@ -56,6 +61,10 @@ export const getRoom = async (req: Request, res: Response) => {
 export const deleteRoom = async (req: Request, res: Response) => {
   const { roomId } = req.body;
   const { userId } = req.user!;
+
+  if (!roomId) {
+    return res.status(400).json({ success: false, message: '방 ID가 필요합니다.' });
+  }
 
   try {
     const result = await deleteRoomService(roomId, userId);
@@ -92,7 +101,7 @@ export const searchRooms = async (req: Request, res: Response) => {
     console.log(`Search result - Found ${result.total} rooms, Page ${result.currentPage} of ${result.totalPages}`);
     res.status(200).json({ 
       success: true, 
-      rooms: result.roomList,
+      rooms: result.rooms,
       currentPage: result.currentPage,
       totalPages: result.totalPages,
       total: result.total
@@ -110,5 +119,16 @@ export const searchRooms = async (req: Request, res: Response) => {
         error: error.message 
       });
     }
+  }
+};
+export const favoriteRoom = async (req: Request, res: Response) => {
+  const { roomId } = req.params;
+  const { userId } = req.user!;
+
+  try {
+    const result = await favoriteRoomService(roomId, userId);
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message || '잘못된 요청입니다.' });
   }
 };
