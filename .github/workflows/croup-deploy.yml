@@ -19,8 +19,8 @@ jobs:
       - name: upload-zip
         uses: einaregilsson/beanstalk-deploy@v20
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_access_key: ${{ secrets.ACCSESS_KEY }}
+          aws_secret_key: ${{ secrets.SECRET_ACCSESS_KEY }}
           region: ap-northeast-2
           application_name: croup
           version_label: v1.0.${{ github.run_number }}
