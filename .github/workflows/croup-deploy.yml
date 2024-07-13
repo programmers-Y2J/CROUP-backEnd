@@ -22,7 +22,7 @@ jobs:
           aws_access_key: ${{ secrets.ACCSESS_KEY }}
           aws_secret_key: ${{ secrets.SECRET_ACCSESS_KEY }}
           region: ap-northeast-2
-          application_name: croup
+          application_name: Croup
           version_label: v1.0.${{ github.run_number }}
-          environment_name: Croup-env-1
+          environment_name: Croup-env-2
           deployment_package: eb-docker-deploy.zip
