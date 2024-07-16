@@ -96,6 +96,7 @@ export const getAllRoomsService = async (userId: string, currentPage: number, li
     roomId: room._id.toHexString(),
     managerId: room.managerId,
     roomTitle: room.roomTitle,
+    roomThumbnail: room.roomThumbnail,
     roomDescription: room.roomDescription,
     tags: room.tags,
     createdAt: room.createdAt,
